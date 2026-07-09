@@ -79,26 +79,33 @@ public class CUI {
 	}
 
 	private void reserveRoom() throws IOException, AppException {
-		System.out.println("Input arrival date in the form of yyyy/mm/dd");
+		System.out.println("Input check-in date in the form of yyyy/mm/dd");
 		System.out.print("> ");
-
-		String dateStr = reader.readLine();
-
-		// Validate input
-		Date stayingDate = DateUtil.convertToDate(dateStr);
-		if (stayingDate == null) {
+		Date checkinDate = DateUtil.convertToDate(reader.readLine());
+		if (checkinDate == null) {
 			System.out.println("Invalid input");
 			return;
 		}
 
+		System.out.println("Input check-out date in the form of yyyy/mm/dd");
+		System.out.print("> ");
+		Date checkoutDate = DateUtil.convertToDate(reader.readLine());
+		if (checkoutDate == null || !checkinDate.before(checkoutDate)) {
+			System.out.println("Invalid check-out date");
+			return;
+		}
+
 		ReserveRoomForm reserveRoomForm = new ReserveRoomForm();
-		reserveRoomForm.setStayingDate(stayingDate);
+		reserveRoomForm.setStayingDate(checkinDate);
+		reserveRoomForm.setCheckoutDate(checkoutDate);
 		ReservationResult result = reserveRoomForm.submitReservationDetail();
 		String reservationNumber = result.getReservationNumber();
 
 		System.out.println("Reservation has been completed.");
-		System.out.println("Arrival (staying) date is "
-				+ DateUtil.convertToString(result.getStayingDate()) + ".");
+		System.out.println("Check-in date is "
+				+ DateUtil.convertToString(result.getCheckinDate()) + ".");
+		System.out.println("Check-out date is "
+				+ DateUtil.convertToString(result.getCheckoutDate()) + ".");
 		System.out.println("Price is " + result.getPrice() + ".");
 		System.out.println("Reservation number is " + reservationNumber + ".");
 	}
@@ -108,7 +115,6 @@ public class CUI {
 		System.out.print("> ");
 
 		String reservationNumber = reader.readLine();
-
 		if (reservationNumber == null || reservationNumber.length() == 0) {
 			System.out.println("Invalid reservation number");
 			return;
@@ -116,14 +122,12 @@ public class CUI {
 
 		CheckInRoomForm checkInRoomForm = new CheckInRoomForm();
 		checkInRoomForm.setReservationNumber(reservationNumber);
-
 		CheckinResult result = checkInRoomForm.checkInDetail();
 		String roomNumber = result.getRoomNumber();
 		System.out.println("Check-in has been completed.");
 		System.out.println("Room number is " + roomNumber + ".");
 		System.out.println("Check-in date is " + DateUtil.convertToString(result.getCheckinDate()) + ".");
 		System.out.println("Check-out date is " + DateUtil.convertToString(result.getCheckoutDate()) + ".");
-
 	}
 
 	private void checkOutRoom() throws IOException, AppException {
@@ -131,7 +135,6 @@ public class CUI {
 		System.out.print("> ");
 
 		String roomNumber = reader.readLine();
-
 		if (roomNumber == null || roomNumber.length() == 0) {
 			System.out.println("Invalid room number");
 			return;

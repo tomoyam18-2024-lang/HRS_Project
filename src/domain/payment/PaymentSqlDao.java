@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
+import domain.DatabaseInitializer;
 import util.DateUtil;
 
 /**
@@ -28,9 +29,6 @@ public class PaymentSqlDao implements PaymentDao {
 
 	private static final String TABLE_NAME = "PAYMENT";
 
-	/**
-	 * @see domain.payment.PaymentDao#getPayment(java.util.Date, java.lang.String)
-	 */
 	public Payment getPayment(Date stayingDate, String roomNumber) throws PaymentException {
 		StringBuffer sql = new StringBuffer();
 		Statement statement = null;
@@ -68,9 +66,6 @@ public class PaymentSqlDao implements PaymentDao {
 		return payment;
 	}
 
-	/**
-	 * @see domain.payment.PaymentDao#updatePayment(domain.payment.Payment)
-	 */
 	public void updatePayment(Payment payment) throws PaymentException {
 		StringBuffer sql = new StringBuffer();
 		Statement statement = null;
@@ -85,6 +80,8 @@ public class PaymentSqlDao implements PaymentDao {
 			sql.append(payment.getStatus());
 			sql.append("' WHERE roomnumber='");
 			sql.append(payment.getRoomNumber());
+			sql.append("' AND stayingdate='");
+			sql.append(DateUtil.convertToString(payment.getStayingDate()));
 			sql.append("';");
 
 			resultSet = statement.executeQuery(sql.toString());
@@ -100,9 +97,6 @@ public class PaymentSqlDao implements PaymentDao {
 		}
 	}
 
-	/**
-	 * @see domain.payment.PaymentDao#createPayment(domain.payment.Payment)
-	 */
 	public void createPayment(Payment payment) throws PaymentException {
 		StringBuffer sql = new StringBuffer();
 		Statement statement = null;
@@ -136,18 +130,12 @@ public class PaymentSqlDao implements PaymentDao {
 		}
 	}
 
-	/**
-	 * データベースコネクションを取得します。<br>
-	 * 
-	 * @return コネクション
-	 * @throws PaymentException
-	 *            データベースコネクション取得が失敗した場合に発生します。
-	 */
 	private Connection getConnection() throws PaymentException {
 		Connection connection = null;
 		try {
 			Class.forName(DRIVER_NAME);
 			connection = DriverManager.getConnection(URL, ID, PASSWORD);
+			DatabaseInitializer.ensureInitialized(connection);
 		}
 		catch (Exception e) {
 			throw new PaymentException(PaymentException.CODE_DB_CONNECT_ERROR, e);

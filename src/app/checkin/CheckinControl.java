@@ -10,11 +10,11 @@ import app.ManagerFactory;
 import app.model.CheckinResult;
 import domain.payment.PaymentException;
 import domain.payment.PaymentManager;
+import domain.reservation.Reservation;
 import domain.reservation.ReservationException;
 import domain.reservation.ReservationManager;
 import domain.room.RoomException;
 import domain.room.RoomManager;
-import util.DateUtil;
 
 /**
  * Control class corresponding to CheckinControl in the Astah design.
@@ -42,10 +42,11 @@ public class CheckinControl {
 
 	public CheckinResult processcheckin(String reservationNumber) throws AppException {
 		try {
-			Date checkinDate = getReservationManager().consumeReservation(reservationNumber);
+			Reservation reservation = getReservationManager().consumeReservationDetail(reservationNumber);
+			Date checkinDate = reservation.getCheckinDate();
+			checkoutDate = reservation.getCheckoutDate();
 			roomNumber = getRoomManager().assignCustomer(checkinDate);
-			getPaymentManager().createPayment(checkinDate, roomNumber);
-			checkoutDate = DateUtil.addDays(checkinDate, 1);
+			getPaymentManager().createPayment(checkinDate, checkoutDate, roomNumber);
 			return new CheckinResult(reservationNumber, roomNumber, checkinDate, checkoutDate);
 		}
 		catch (ReservationException e) {

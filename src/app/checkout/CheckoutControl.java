@@ -8,13 +8,11 @@ import java.util.Date;
 import app.AppException;
 import app.ManagerFactory;
 import app.model.CheckoutResult;
-import domain.payment.Payment;
 import domain.payment.PaymentException;
 import domain.payment.PaymentManager;
 import domain.room.Room;
 import domain.room.RoomException;
 import domain.room.RoomManager;
-import util.DateUtil;
 
 /**
  * Control class corresponding to CheckoutControl in the Astah design.
@@ -27,7 +25,8 @@ public class CheckoutControl {
 		this.roomNumber = roomNumber;
 		CheckoutResult result = getRoomNumberAndPrice(roomNumber);
 		try {
-			getPaymentManager().consumePayment(result.getCheckinDate(), roomNumber);
+			getPaymentManager().consumePayment(result.getCheckinDate(), result.getCheckoutDate(),
+					roomNumber);
 			clearRoom(roomNumber);
 			return result;
 		}
@@ -45,9 +44,9 @@ public class CheckoutControl {
 				exception.getDetailMessages().add("room_number[" + roomNumber + "]");
 				throw exception;
 			}
-			Payment payment = getPaymentManager().getPayment(checkinDate, roomNumber);
-			Date checkoutDate = DateUtil.addDays(checkinDate, 1);
-			return new CheckoutResult(roomNumber, checkinDate, checkoutDate, payment.getAmount());
+			Date checkoutDate = getPaymentManager().getCheckoutDate(checkinDate, roomNumber);
+			int price = getPaymentManager().getPaymentAmount(checkinDate, checkoutDate, roomNumber);
+			return new CheckoutResult(roomNumber, checkinDate, checkoutDate, price);
 		}
 		catch (RoomException e) {
 			throw createAppException("Failed to check-out", e);

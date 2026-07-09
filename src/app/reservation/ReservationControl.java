@@ -27,16 +27,27 @@ public class ReservationControl {
 	private String reservationNumber;
 
 	public ReservationResult confirmReservation(Date stayingDate) throws AppException {
-		confirmVacancy(stayingDate);
-		return new ReservationResult(stayingDate, getPrice());
+		return confirmReservation(stayingDate, DateUtil.addDays(stayingDate, 1));
+	}
+
+	public ReservationResult confirmReservation(Date checkinDate, Date checkoutDate)
+			throws AppException {
+		validatePeriod(checkinDate, checkoutDate);
+		confirmVacancy(checkinDate, checkoutDate);
+		return new ReservationResult(checkinDate, checkoutDate, getPrice(checkinDate, checkoutDate));
 	}
 
 	public void confirmVacancy(Date stayingDate) throws AppException {
+		confirmVacancy(stayingDate, DateUtil.addDays(stayingDate, 1));
+	}
+
+	public void confirmVacancy(Date checkinDate, Date checkoutDate) throws AppException {
 		try {
-			if (!hotel.confirmPossibleReservation(stayingDate)) {
+			if (!hotel.confirmPossibleReservation(checkinDate, checkoutDate)) {
 				AppException exception = new AppException("Failed to reserve");
-				exception.getDetailMessages().add("No vacant room on "
-						+ DateUtil.convertToString(stayingDate));
+				exception.getDetailMessages().add("No vacant room between "
+						+ DateUtil.convertToString(checkinDate) + " and "
+						+ DateUtil.convertToString(checkoutDate));
 				throw exception;
 			}
 		}
@@ -46,11 +57,16 @@ public class ReservationControl {
 	}
 
 	public String reserveRoom(Date stayingDate) throws AppException {
-		confirmVacancy(stayingDate);
+		return reserveRoom(stayingDate, DateUtil.addDays(stayingDate, 1));
+	}
+
+	public String reserveRoom(Date checkinDate, Date checkoutDate) throws AppException {
+		validatePeriod(checkinDate, checkoutDate);
+		confirmVacancy(checkinDate, checkoutDate);
 		try {
-			getRoomManager().updateRoomAvailableQty(stayingDate,
+			getRoomManager().updateRoomAvailableQty(checkinDate, checkoutDate,
 					AVAILABLE_QTY_CHANGE_FOR_ONE_NIGHT);
-			reservationNumber = createReservation(stayingDate);
+			reservationNumber = createReservation(checkinDate, checkoutDate);
 			return reservationNumber;
 		}
 		catch (RoomException e) {
@@ -59,8 +75,12 @@ public class ReservationControl {
 	}
 
 	public String createReservation(Date stayingDate) throws AppException {
+		return createReservation(stayingDate, DateUtil.addDays(stayingDate, 1));
+	}
+
+	public String createReservation(Date checkinDate, Date checkoutDate) throws AppException {
 		try {
-			return getReservationManager().createReservation(stayingDate);
+			return getReservationManager().createReservation(checkinDate, checkoutDate);
 		}
 		catch (ReservationException e) {
 			throw createAppException("Failed to reserve", e);
@@ -71,8 +91,16 @@ public class ReservationControl {
 		return reservationNumber;
 	}
 
-	private int getPrice() {
-		return getPaymentManager().getRatePerDay(null);
+	private int getPrice(Date checkinDate, Date checkoutDate) {
+		return getPaymentManager().getRatePerDay(null) * DateUtil.getDays(checkinDate, checkoutDate);
+	}
+
+	private void validatePeriod(Date checkinDate, Date checkoutDate) throws AppException {
+		if (checkinDate == null || checkoutDate == null || !checkinDate.before(checkoutDate)) {
+			AppException exception = new AppException("Failed to reserve");
+			exception.getDetailMessages().add("Checkout date must be after check-in date.");
+			throw exception;
+		}
 	}
 
 	private ReservationManager getReservationManager() {

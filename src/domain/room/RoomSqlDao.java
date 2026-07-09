@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import domain.DatabaseInitializer;
 import util.DateUtil;
 
 /**
@@ -173,6 +174,7 @@ public class RoomSqlDao implements RoomDao {
 		try {
 			Class.forName(DRIVER_NAME);
 			connection = DriverManager.getConnection(URL, ID, PASSWORD);
+			DatabaseInitializer.ensureInitialized(connection);
 		}
 		catch (Exception e) {
 			throw new RoomException(RoomException.CODE_DB_CONNECT_ERROR, e);

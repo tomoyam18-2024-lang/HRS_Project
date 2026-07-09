@@ -29,9 +29,6 @@ public class DateUtil {
 		return calendar.getTime();
 	}
 
-	/**
-	 * Adjusting time of specified date data to 00:00:00
-	 */
 	public static Date getMidnightDate(Date date) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
@@ -44,6 +41,20 @@ public class DateUtil {
 		calendar.setTime(date);
 		calendar.add(Calendar.DATE, amount);
 		return getMidnightDate(calendar.getTime());
+	}
+
+	public static int getDays(Date checkinDate, Date checkoutDate) {
+		if (checkinDate == null || checkoutDate == null) {
+			throw new NullPointerException("date");
+		}
+		int days = 0;
+		Date cursor = getMidnightDate(checkinDate);
+		Date end = getMidnightDate(checkoutDate);
+		while (cursor.before(end)) {
+			days++;
+			cursor = addDays(cursor, 1);
+		}
+		return days;
 	}
 
 	public static String convertToString(Date date) {

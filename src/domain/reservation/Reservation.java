@@ -19,6 +19,8 @@ public class Reservation {
 
 	private Date stayingDate;
 
+	private Date checkoutDate;
+
 	private String status;
 
 	public String getReservationNumber() {
@@ -35,6 +37,22 @@ public class Reservation {
 
 	public void setStayingDate(Date stayingDate) {
 		this.stayingDate = stayingDate;
+	}
+
+	public Date getCheckinDate() {
+		return stayingDate;
+	}
+
+	public void setCheckinDate(Date checkinDate) {
+		this.stayingDate = checkinDate;
+	}
+
+	public Date getCheckoutDate() {
+		return checkoutDate;
+	}
+
+	public void setCheckoutDate(Date checkoutDate) {
+		this.checkoutDate = checkoutDate;
 	}
 
 	public String getStatus() {

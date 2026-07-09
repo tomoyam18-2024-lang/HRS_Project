@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hotel Reservation System</title>
+  <link rel="stylesheet" href="front-desk.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span>
+        </div>
+        <div>
+          <h1>HRS</h1>
+          <p>Front Desk</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Main menu">
+        <button class="nav-button active" type="button" data-view="reservation">Reservation</button>
+        <button class="nav-button" type="button" data-view="checkin">Check-in</button>
+        <button class="nav-button" type="button" data-view="checkout">Check-out</button>
+        <button class="nav-button" type="button" data-view="dashboard">Dashboard</button>
+      </nav>
+
+      <div class="status-panel">
+        <span class="status-label">Rooms</span>
+        <strong id="availableToday">5 / 5</strong>
+        <small>available today</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Hotel Reservation System</p>
+          <h2 id="viewTitle">Room Reservation</h2>
+        </div>
+        <button class="secondary-button" type="button" id="resetDemo">Reset Demo</button>
+      </header>
+
+      <section class="workspace">
+        <section class="view active" id="reservationView" data-title="Room Reservation">
+          <form class="tool-panel" id="reservationForm">
+            <div class="form-grid">
+              <label>
+                <span>Check-in date</span>
+                <input type="date" id="reservationCheckin" required>
+              </label>
+              <label>
+                <span>Check-out date</span>
+                <input type="date" id="reservationCheckout" required>
+              </label>
+            </div>
+            <div class="summary-strip" aria-live="polite">
+              <div>
+                <span>Nights</span>
+                <strong id="reservationNights">0</strong>
+              </div>
+              <div>
+                <span>Price</span>
+                <strong id="reservationPrice">0 yen</strong>
+              </div>
+              <div>
+                <span>Availability</span>
+                <strong id="reservationAvailability">-</strong>
+              </div>
+            </div>
+            <button class="primary-button" type="submit">Reserve Room</button>
+          </form>
+        </section>
+
+        <section class="view" id="checkinView" data-title="Check-in">
+          <form class="tool-panel" id="checkinForm">
+            <label>
+              <span>Reservation number</span>
+              <input type="text" id="checkinReservationNumber" inputmode="numeric" autocomplete="off" required>
+            </label>
+            <button class="primary-button" type="submit">Check-in</button>
+          </form>
+        </section>
+
+        <section class="view" id="checkoutView" data-title="Check-out">
+          <form class="tool-panel" id="checkoutForm">
+            <label>
+              <span>Room number</span>
+              <input type="text" id="checkoutRoomNumber" inputmode="numeric" autocomplete="off" required>
+            </label>
+            <button class="primary-button" type="submit">Check-out</button>
+          </form>
+        </section>
+
+        <section class="view" id="dashboardView" data-title="Dashboard">
+          <div class="dashboard-grid">
+            <section class="tool-panel">
+              <div class="section-heading">
+                <h3>Room Board</h3>
+                <span id="roomBoardDate"></span>
+              </div>
+              <div class="room-board" id="roomBoard"></div>
+            </section>
+            <section class="tool-panel">
+              <div class="section-heading">
+                <h3>Reservations</h3>
+                <span id="reservationCount">0</span>
+              </div>
+              <div class="reservation-list" id="reservationList"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="message-log" aria-live="polite">
+          <div class="section-heading">
+            <h3>Message</h3>
+            <button class="text-button" type="button" id="clearMessages">Clear</button>
+          </div>
+          <pre id="messages">System started.</pre>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="front-desk.js"></script>
+</body>
+</html>

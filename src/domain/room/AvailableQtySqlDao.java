@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
+import domain.DatabaseInitializer;
 import util.DateUtil;
 
 /**
@@ -135,6 +136,7 @@ public class AvailableQtySqlDao implements AvailableQtyDao {
 		try {
 			Class.forName(DRIVER_NAME);
 			connection = DriverManager.getConnection(URL, ID, PASSWORD);
+			DatabaseInitializer.ensureInitialized(connection);
 		}
 		catch (Exception e) {
 			throw new RoomException(RoomException.CODE_DB_CONNECT_ERROR, e);

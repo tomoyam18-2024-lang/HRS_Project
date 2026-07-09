@@ -10,19 +10,30 @@ import java.util.Date;
  */
 public class ReservationResult {
 
-	private Date stayingDate;
+	private Date checkinDate;
+
+	private Date checkoutDate;
 
 	private int price;
 
 	private String reservationNumber;
 
-	public ReservationResult(Date stayingDate, int price) {
-		this.stayingDate = stayingDate;
+	public ReservationResult(Date checkinDate, Date checkoutDate, int price) {
+		this.checkinDate = checkinDate;
+		this.checkoutDate = checkoutDate;
 		this.price = price;
 	}
 
+	public Date getCheckinDate() {
+		return checkinDate;
+	}
+
 	public Date getStayingDate() {
-		return stayingDate;
+		return checkinDate;
+	}
+
+	public Date getCheckoutDate() {
+		return checkoutDate;
 	}
 
 	public int getPrice() {

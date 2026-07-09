@@ -20,12 +20,22 @@ public class ReservationUI {
 		return DateUtil.convertToDate(stayingDateText);
 	}
 
+	public Date inputCheckoutDate(String checkoutDateText) {
+		return DateUtil.convertToDate(checkoutDateText);
+	}
+
 	public ReservationResult selectRoomAndInputGuestInfo(Date stayingDate) throws AppException {
 		return reservationControl.confirmReservation(stayingDate);
 	}
 
+	public ReservationResult selectRoomAndInputGuestInfo(Date checkinDate, Date checkoutDate)
+			throws AppException {
+		return reservationControl.confirmReservation(checkinDate, checkoutDate);
+	}
+
 	public String showDateAndPrice(ReservationResult result) {
-		return "Arrival date is " + DateUtil.convertToString(result.getStayingDate())
+		return "Check-in date is " + DateUtil.convertToString(result.getCheckinDate())
+				+ ". Check-out date is " + DateUtil.convertToString(result.getCheckoutDate())
 				+ ". Price is " + result.getPrice() + ".";
 	}
 
@@ -35,6 +45,10 @@ public class ReservationUI {
 
 	public String confirmReservation(Date stayingDate) throws AppException {
 		return reservationControl.reserveRoom(stayingDate);
+	}
+
+	public String confirmReservation(Date checkinDate, Date checkoutDate) throws AppException {
+		return reservationControl.reserveRoom(checkinDate, checkoutDate);
 	}
 
 	public String comfirmReservatin(Date stayingDate) throws AppException {
@@ -47,7 +61,9 @@ public class ReservationUI {
 		return result;
 	}
 
-	private ReservationControl getReservationControl() {
-		return reservationControl;
+	public ReservationResult reserveRoom(Date checkinDate, Date checkoutDate) throws AppException {
+		ReservationResult result = selectRoomAndInputGuestInfo(checkinDate, checkoutDate);
+		result.setReservationNumber(confirmReservation(checkinDate, checkoutDate));
+		return result;
 	}
 }

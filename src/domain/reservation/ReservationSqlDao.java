@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import domain.DatabaseInitializer;
 import util.DateUtil;
 
 /**
@@ -27,9 +28,6 @@ public class ReservationSqlDao implements ReservationDao {
 
 	private static final String TABLE_NAME = "RESERVATION";
 
-	/**
-	 * @see domain.reservation.ReservationDao#getReservation(java.lang.String)
-	 */
 	public Reservation getReservation(String reservationNumber) throws ReservationException {
 		StringBuffer sql = new StringBuffer();
 		Statement statement = null;
@@ -38,8 +36,9 @@ public class ReservationSqlDao implements ReservationDao {
 		Reservation reservation = null;
 		try {
 			connection = getConnection();
+			ensureCheckoutDateColumn(connection);
 			statement = connection.createStatement();
-			sql.append("SELECT reservationnumber, stayingdate, status FROM ");
+			sql.append("SELECT reservationnumber, stayingdate, checkoutdate, status FROM ");
 			sql.append(TABLE_NAME);
 			sql.append(" WHERE RESERVATIONNUMBER= '");
 			sql.append(reservationNumber);
@@ -49,8 +48,13 @@ public class ReservationSqlDao implements ReservationDao {
 				reservation = new Reservation();
 				reservation.setReservationNumber(reservationNumber);
 				reservation.setStatus(resultSet.getString("status"));
-				reservation.setStayingDate(DateUtil.convertToDate(resultSet
+				reservation.setCheckinDate(DateUtil.convertToDate(resultSet
 						.getString("stayingDate")));
+				reservation.setCheckoutDate(DateUtil.convertToDate(resultSet
+						.getString("checkoutDate")));
+				if (reservation.getCheckoutDate() == null) {
+					reservation.setCheckoutDate(DateUtil.addDays(reservation.getCheckinDate(), 1));
+				}
 			}
 		}
 		catch (SQLException e) {
@@ -65,9 +69,6 @@ public class ReservationSqlDao implements ReservationDao {
 		return reservation;
 	}
 
-	/**
-	 * @see domain.reservation.ReservationDao#updateReservation(domain.reservation.Reservation)
-	 */
 	public void updateReservation(Reservation reservation) throws ReservationException {
 		StringBuffer sql = new StringBuffer();
 		Statement statement = null;
@@ -75,6 +76,7 @@ public class ReservationSqlDao implements ReservationDao {
 		Connection connection = null;
 		try {
 			connection = getConnection();
+			ensureCheckoutDateColumn(connection);
 			statement = connection.createStatement();
 			sql.append("UPDATE ");
 			sql.append(TABLE_NAME);
@@ -96,9 +98,6 @@ public class ReservationSqlDao implements ReservationDao {
 		}
 	}
 
-	/**
-	 * @see domain.reservation.ReservationDao#createReservation(domain.reservation.Reservation)
-	 */
 	public void createReservation(Reservation reservation) throws ReservationException {
 		StringBuffer sql = new StringBuffer();
 		Statement statement = null;
@@ -106,14 +105,17 @@ public class ReservationSqlDao implements ReservationDao {
 		Connection connection = null;
 		try {
 			connection = getConnection();
+			ensureCheckoutDateColumn(connection);
 			statement = connection.createStatement();
 			sql.append("INSERT INTO ");
 			sql.append(TABLE_NAME);
-			sql.append(" (reservationNumber, stayingDate, status) ");
+			sql.append(" (reservationNumber, stayingDate, checkoutDate, status) ");
 			sql.append("values ('");
 			sql.append(reservation.getReservationNumber());
 			sql.append("', '");
-			sql.append(DateUtil.convertToString(reservation.getStayingDate()));
+			sql.append(DateUtil.convertToString(reservation.getCheckinDate()));
+			sql.append("', '");
+			sql.append(DateUtil.convertToString(reservation.getCheckoutDate()));
 			sql.append("', '");
 			sql.append(reservation.getStatus());
 			sql.append("');");
@@ -135,11 +137,54 @@ public class ReservationSqlDao implements ReservationDao {
 		try {
 			Class.forName(DRIVER_NAME);
 			connection = DriverManager.getConnection(URL, ID, PASSWORD);
+			DatabaseInitializer.ensureInitialized(connection);
 		}
 		catch (Exception e) {
 			throw new ReservationException(ReservationException.CODE_DB_CONNECT_ERROR, e);
 		}
 		return connection;
+	}
+
+	private void ensureCheckoutDateColumn(Connection connection) throws ReservationException {
+		Statement statement = null;
+		ResultSet resultSet = null;
+		try {
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery("SELECT checkoutdate FROM " + TABLE_NAME
+					+ " WHERE 1 = 0;");
+		}
+		catch (SQLException e) {
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+				statement = connection.createStatement();
+				statement.executeUpdate("ALTER TABLE " + TABLE_NAME
+						+ " ADD checkoutdate VARCHAR(20);");
+			}
+			catch (SQLException alterException) {
+				ReservationException exception = new ReservationException(
+						ReservationException.CODE_DB_EXEC_QUERY_ERROR, alterException);
+				exception.getDetailMessages().add("ensureCheckoutDateColumn()");
+				throw exception;
+			}
+		}
+		finally {
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			}
+			catch (SQLException e) {
+				throw new ReservationException(ReservationException.CODE_DB_CLOSE_ERROR, e);
+			}
+		}
 	}
 
 	private void close(ResultSet resultSet, Statement statement, Connection connection)

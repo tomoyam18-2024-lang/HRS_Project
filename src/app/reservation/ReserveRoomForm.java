@@ -7,6 +7,7 @@ import java.util.Date;
 
 import app.AppException;
 import app.model.ReservationResult;
+import util.DateUtil;
 
 /**
  * Form class for Reserve Room
@@ -18,6 +19,8 @@ public class ReserveRoomForm {
 
 	private Date stayingDate;
 
+	private Date checkoutDate;
+
 	private ReservationUI getReservationUI() {
 		return reservationUI;
 	}
@@ -28,7 +31,7 @@ public class ReserveRoomForm {
 
 	public ReservationResult submitReservationDetail() throws AppException {
 		ReservationUI reservationUI = getReservationUI();
-		return reservationUI.reserveRoom(stayingDate);
+		return reservationUI.reserveRoom(stayingDate, getEffectiveCheckoutDate());
 	}
 
 	public Date getStayingDate() {
@@ -39,4 +42,18 @@ public class ReserveRoomForm {
 		this.stayingDate = stayingDate;
 	}
 
+	public Date getCheckoutDate() {
+		return checkoutDate;
+	}
+
+	public void setCheckoutDate(Date checkoutDate) {
+		this.checkoutDate = checkoutDate;
+	}
+
+	private Date getEffectiveCheckoutDate() {
+		if (checkoutDate == null && stayingDate != null) {
+			return DateUtil.addDays(stayingDate, 1);
+		}
+		return checkoutDate;
+	}
 }

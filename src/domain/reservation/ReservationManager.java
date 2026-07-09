@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import domain.DaoFactory;
+import util.DateUtil;
 
 /**
  * Manager for reservations<br>
@@ -16,14 +17,26 @@ public class ReservationManager {
 	
 	public String createReservation(Date stayingDate) throws ReservationException,
 			NullPointerException {
-		if (stayingDate == null) {
-			throw new NullPointerException("stayingDate");
+		return createReservation(stayingDate, DateUtil.addDays(stayingDate, 1));
+	}
+
+	public String createReservation(Date checkinDate, Date checkoutDate)
+			throws ReservationException, NullPointerException {
+		if (checkinDate == null) {
+			throw new NullPointerException("checkinDate");
+		}
+		if (checkoutDate == null) {
+			throw new NullPointerException("checkoutDate");
+		}
+		if (!checkinDate.before(checkoutDate)) {
+			throw new IllegalArgumentException("checkoutDate must be after checkinDate");
 		}
 
 		Reservation reservation = new Reservation();
 		String reservationNumber = generateReservationNumber();
 		reservation.setReservationNumber(reservationNumber);
-		reservation.setStayingDate(stayingDate);
+		reservation.setCheckinDate(checkinDate);
+		reservation.setCheckoutDate(checkoutDate);
 		reservation.setStatus(Reservation.RESERVATION_STATUS_CREATE);
 
 		ReservationDao reservationDao = getReservationDao();
@@ -43,20 +56,23 @@ public class ReservationManager {
 
 	public Date consumeReservation(String reservationNumber) throws ReservationException,
 			NullPointerException {
+		return consumeReservationDetail(reservationNumber).getCheckinDate();
+	}
+
+	public Reservation consumeReservationDetail(String reservationNumber)
+			throws ReservationException, NullPointerException {
 		if (reservationNumber == null) {
 			throw new NullPointerException("reservationNumber");
 		}
 
 		ReservationDao reservationDao = getReservationDao();
 		Reservation reservation = reservationDao.getReservation(reservationNumber);
-		//If corresponding reservation does not exist
 		if (reservation == null) {
 			ReservationException exception = new ReservationException(
 					ReservationException.CODE_RESERVATION_NOT_FOUND);
 			exception.getDetailMessages().add("reservation_number[" + reservationNumber + "]");
 			throw exception;
 		}
-		//If reservation has been consumed already
 		if (reservation.getStatus().equals(Reservation.RESERVATION_STATUS_CONSUME)) {
 			ReservationException exception = new ReservationException(
 					ReservationException.CODE_RESERVATION_ALREADY_CONSUMED);
@@ -64,10 +80,9 @@ public class ReservationManager {
 			throw exception;
 		}
 
-		Date stayingDate = reservation.getStayingDate();
 		reservation.setStatus(Reservation.RESERVATION_STATUS_CONSUME);
 		reservationDao.updateReservation(reservation);
-		return stayingDate;
+		return reservation;
 	}
 
 	private ReservationDao getReservationDao() {

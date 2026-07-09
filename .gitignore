@@ -1,3 +1,5 @@
 ﻿bin/
+dev_program_DB/mydb/mydb.*
+!dev_program_DB/mydb/setup.sql
 *.class
 src_checkout_fixed_vscode.zip

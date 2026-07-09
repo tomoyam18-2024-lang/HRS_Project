@@ -4,6 +4,8 @@
 package app.checkout;
 
 import app.AppException;
+import app.model.CheckoutResult;
+import app.roommanagement.RoomManagementUI;
 
 /**
  * Form class for Check-out Customer
@@ -11,17 +13,21 @@ import app.AppException;
  */
 public class CheckOutRoomForm {
 
-	private CheckOutRoomControl checkOutRoomControl = new CheckOutRoomControl();
+	private RoomManagementUI roomManagementUI = new RoomManagementUI();
 
-	private CheckOutRoomControl getCheckOutRoomControl() {
-		return checkOutRoomControl;
+	private RoomManagementUI getRoomManagementUI() {
+		return roomManagementUI;
 	}
 
 	private String roomNumber;
 
 	public void checkOut() throws AppException {
-		CheckOutRoomControl checkOutRoomControl = getCheckOutRoomControl();
-		checkOutRoomControl.checkOut(roomNumber);
+		checkOutDetail();
+	}
+
+	public CheckoutResult checkOutDetail() throws AppException {
+		RoomManagementUI roomManagementUI = getRoomManagementUI();
+		return roomManagementUI.checkout(roomNumber);
 	}
 
 	public String getRoomNumber() {

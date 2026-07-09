@@ -6,6 +6,7 @@ package app.reservation;
 import java.util.Date;
 
 import app.AppException;
+import app.model.ReservationResult;
 
 /**
  * Form class for Reserve Room
@@ -13,17 +14,21 @@ import app.AppException;
  */
 public class ReserveRoomForm {
 
-	private ReserveRoomControl reserveRoomHandler = new ReserveRoomControl();
+	private ReservationUI reservationUI = new ReservationUI();
 
 	private Date stayingDate;
 
-	private ReserveRoomControl getReserveRoomHandler() {
-		return reserveRoomHandler;
+	private ReservationUI getReservationUI() {
+		return reservationUI;
 	}
 
 	public String submitReservation() throws AppException {
-		ReserveRoomControl reserveRoomHandler = getReserveRoomHandler();
-		return reserveRoomHandler.makeReservation(stayingDate);
+		return submitReservationDetail().getReservationNumber();
+	}
+
+	public ReservationResult submitReservationDetail() throws AppException {
+		ReservationUI reservationUI = getReservationUI();
+		return reservationUI.reserveRoom(stayingDate);
 	}
 
 	public Date getStayingDate() {

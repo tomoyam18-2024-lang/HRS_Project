@@ -39,6 +39,13 @@ public class DateUtil {
 				.get(Calendar.DATE));
 	}
 
+	public static Date addDays(Date date, int amount) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(Calendar.DATE, amount);
+		return getMidnightDate(calendar.getTime());
+	}
+
 	public static String convertToString(Date date) {
 		return FORMATTER.format(date);
 	}

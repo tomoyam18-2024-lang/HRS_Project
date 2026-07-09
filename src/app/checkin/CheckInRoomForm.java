@@ -4,6 +4,8 @@
 package app.checkin;
 
 import app.AppException;
+import app.model.CheckinResult;
+import app.roommanagement.RoomManagementUI;
 
 /**
  * Form class for Check-in Customer
@@ -11,17 +13,21 @@ import app.AppException;
  */
 public class CheckInRoomForm {
 
-	private CheckInRoomControl checkInRoomControl = new CheckInRoomControl();
+	private RoomManagementUI roomManagementUI = new RoomManagementUI();
 
-	private CheckInRoomControl getCheckInRoomControl() {
-		return checkInRoomControl;
+	private RoomManagementUI getRoomManagementUI() {
+		return roomManagementUI;
 	}
 
 	private String reservationNumber;
 
 	public String checkIn() throws AppException {
-		CheckInRoomControl checkInRoomControl = getCheckInRoomControl();
-		return checkInRoomControl.checkIn(reservationNumber);
+		return checkInDetail().getRoomNumber();
+	}
+
+	public CheckinResult checkInDetail() throws AppException {
+		RoomManagementUI roomManagementUI = getRoomManagementUI();
+		return roomManagementUI.checkin(reservationNumber);
 	}
 
 	public String getReservationNumber() {

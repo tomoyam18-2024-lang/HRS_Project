@@ -67,6 +67,20 @@ public class RoomManager {
 		return rooms.size();
 	}
 
+	public Room getRoom(String roomNumber) throws RoomException, NullPointerException {
+		if (roomNumber == null) {
+			throw new NullPointerException("roomNumber");
+		}
+		RoomDao roomDao = getRoomDao();
+		Room room = roomDao.getRoom(roomNumber);
+		if (room == null) {
+			RoomException exception = new RoomException(RoomException.CODE_ROOM_NOT_FOUND);
+			exception.getDetailMessages().add("room_number[" + roomNumber + "]");
+			throw exception;
+		}
+		return room;
+	}
+
 	public String assignCustomer(Date stayingDate) throws RoomException, NullPointerException {
 		if (stayingDate == null) {
 			throw new NullPointerException("stayingDate");

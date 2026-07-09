@@ -12,6 +12,9 @@ import util.DateUtil;
 import app.AppException;
 import app.checkin.CheckInRoomForm;
 import app.checkout.CheckOutRoomForm;
+import app.model.CheckinResult;
+import app.model.CheckoutResult;
+import app.model.ReservationResult;
 import app.reservation.ReserveRoomForm;
 
 /**
@@ -90,10 +93,13 @@ public class CUI {
 
 		ReserveRoomForm reserveRoomForm = new ReserveRoomForm();
 		reserveRoomForm.setStayingDate(stayingDate);
-		String reservationNumber = reserveRoomForm.submitReservation();
+		ReservationResult result = reserveRoomForm.submitReservationDetail();
+		String reservationNumber = result.getReservationNumber();
 
 		System.out.println("Reservation has been completed.");
-		System.out.println("Arrival (staying) date is " + DateUtil.convertToString(stayingDate) + ".");
+		System.out.println("Arrival (staying) date is "
+				+ DateUtil.convertToString(result.getStayingDate()) + ".");
+		System.out.println("Price is " + result.getPrice() + ".");
 		System.out.println("Reservation number is " + reservationNumber + ".");
 	}
 
@@ -111,9 +117,12 @@ public class CUI {
 		CheckInRoomForm checkInRoomForm = new CheckInRoomForm();
 		checkInRoomForm.setReservationNumber(reservationNumber);
 
-		String roomNumber = checkInRoomForm.checkIn();
+		CheckinResult result = checkInRoomForm.checkInDetail();
+		String roomNumber = result.getRoomNumber();
 		System.out.println("Check-in has been completed.");
 		System.out.println("Room number is " + roomNumber + ".");
+		System.out.println("Check-in date is " + DateUtil.convertToString(result.getCheckinDate()) + ".");
+		System.out.println("Check-out date is " + DateUtil.convertToString(result.getCheckoutDate()) + ".");
 
 	}
 
@@ -130,8 +139,12 @@ public class CUI {
 
 		CheckOutRoomForm checkoutRoomForm = new CheckOutRoomForm();
 		checkoutRoomForm.setRoomNumber(roomNumber);
-		checkoutRoomForm.checkOut();
+		CheckoutResult result = checkoutRoomForm.checkOutDetail();
 		System.out.println("Check-out has been completed.");
+		System.out.println("Room number is " + result.getRoomNumber() + ".");
+		System.out.println("Check-in date is " + DateUtil.convertToString(result.getCheckinDate()) + ".");
+		System.out.println("Check-out date is " + DateUtil.convertToString(result.getCheckoutDate()) + ".");
+		System.out.println("Price is " + result.getPrice() + ".");
 	}
 
 	public static void main(String[] args) throws Exception {

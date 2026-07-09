@@ -38,8 +38,28 @@ public class PaymentManager {
 		paymentDao.createPayment(payment);
 	}
 
-	private int getRatePerDay(String roomNumber) {
+	public int getRatePerDay(String roomNumber) {
 		return RATE_PER_DAY;
+	}
+
+	public Payment getPayment(Date stayingDate, String roomNumber) throws PaymentException,
+			NullPointerException {
+		if (stayingDate == null) {
+			throw new NullPointerException("stayingDate");
+		}
+		if (roomNumber == null) {
+			throw new NullPointerException("roomNumber");
+		}
+
+		PaymentDao paymentDao = getPaymentDao();
+		Payment payment = paymentDao.getPayment(stayingDate, roomNumber);
+		if (payment == null) {
+			PaymentException exception = new PaymentException(PaymentException.CODE_PAYMENT_NOT_FOUND);
+			exception.getDetailMessages().add("staying_date[" + DateUtil.convertToString(stayingDate) + "]");
+			exception.getDetailMessages().add("room_number[" + roomNumber + "]");
+			throw exception;
+		}
+		return payment;
 	}
 
 	public void consumePayment(Date stayingDate, String roomNumber) throws PaymentException,
